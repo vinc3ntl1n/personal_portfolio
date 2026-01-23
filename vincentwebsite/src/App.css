@@ -1,0 +1,45 @@
+.icon {
+    width: 80px;
+    height: 80px;
+}
+
+.title-bar.bottom-bar {  /*this is for the blue bottom bar */
+    position: absolute;
+    bottom: 0%;
+    width: 100%;
+    height: 40px; 
+}
+
+.greentab { 
+    height: 100%;
+    width: 13%;
+}
+
+.image-container {
+    position: relative;
+    width: 110%;
+    height: 130%;
+    left: -1%;
+}
+
+.text {
+    position: relative;
+    font-family: 'Framdit', monospace;
+    font-weight: bold;
+    color: #f9ffe7;
+    font-size: 220%;
+}
+
+@font-face {
+  font-family: 'Framdit';
+  src: url('./assets/Framdit.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.logo {
+    position: relative;
+    bottom: 20%;
+    left: -10%;
+    width: 3%;
+}
