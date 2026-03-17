@@ -3,6 +3,9 @@ import SketchIcon from './SketchIcon';
 import './Window.css';
 
 const MENU_BAR_HEIGHT = 56;
+const MIN_WIDTH = 280;
+const MIN_HEIGHT = 200;
+const WINDOW_MARGIN = 12;
 
 export default function Window({
   id,
@@ -76,14 +79,30 @@ export default function Window({
       startY: e.clientY,
       startW: size.w,
       startH: size.h,
+      originX: pos.x,
+      originY: pos.y,
     };
 
     const handleMouseMove = (e) => {
       if (!resizeRef.current.resizing) return;
       const dx = e.clientX - resizeRef.current.startX;
       const dy = e.clientY - resizeRef.current.startY;
-      const newW = Math.max(280, resizeRef.current.startW + dx);
-      const newH = Math.max(200, resizeRef.current.startH + dy);
+      const maxWidth = Math.max(
+        MIN_WIDTH,
+        window.innerWidth - resizeRef.current.originX - WINDOW_MARGIN,
+      );
+      const maxHeight = Math.max(
+        MIN_HEIGHT,
+        window.innerHeight - resizeRef.current.originY - WINDOW_MARGIN,
+      );
+      const newW = Math.min(
+        Math.max(MIN_WIDTH, resizeRef.current.startW + dx),
+        maxWidth,
+      );
+      const newH = Math.min(
+        Math.max(MIN_HEIGHT, resizeRef.current.startH + dy),
+        maxHeight,
+      );
       setSize({ w: newW, h: newH });
     };
 
@@ -95,7 +114,7 @@ export default function Window({
 
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
-  }, [onFocus, size]);
+  }, [onFocus, pos, size]);
 
   const handleClose = () => {
     setClosing(true);

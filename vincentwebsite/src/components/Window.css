@@ -3,7 +3,6 @@
   display: flex;
   flex-direction: column;
   background: var(--bg);
-  max-height: calc(100vh - 50px);
 }
 
 .window--clean {

@@ -14,7 +14,7 @@ const DEFAULT_WINDOW_LAYOUT = {
   positions: {
     contact: { x: 290, y: 99 },
     resume: { x: 722, y: 175 },
-    about: { x: 48, y: 472 },
+    about: { x: 10, y: 469 },
   },
   zOrder: ['about', 'contact', 'resume'],
 };
@@ -23,8 +23,8 @@ const WINDOW_CONFIG = {
   about: {
     title: 'About Me',
     variant: 'clean',  
-    width: 662,
-    height: 387,
+    width: 698,
+    height: 398,
     component: AboutWindow,
   },
   projects: {
@@ -85,7 +85,7 @@ export default function App() {
         break;
 
       case 'open-help-about':
-        alert('Decker Desktop Portfolio\nBuilt with React + SVG\nInspired by Decker & classic Macintosh');
+        alert('Vincents decker desktop portfolio\nbuilt with react + svg\ninspired by decker & classic the macintosh');
         break;
 
       case 'draw-mode':
