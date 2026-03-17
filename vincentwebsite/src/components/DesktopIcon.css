@@ -1,0 +1,49 @@
+.desktop-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--desktop-icon-gap, 4px);
+  padding: var(--desktop-icon-padding-top, 8px) 0 var(--desktop-icon-padding-bottom, 10px);
+  width: var(--desktop-icon-footprint, 118px);
+  user-select: none;
+  cursor: default;
+}
+
+.desktop-icon__graphic {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--desktop-icon-graphic, 104px);
+  height: var(--desktop-icon-graphic, 104px);
+  transition: transform 0.15s ease;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+.desktop-icon__graphic svg {
+  shape-rendering: crispEdges;
+}
+
+.desktop-icon__label {
+  font-family: var(--font-display);
+  font-size: var(--desktop-icon-label-size, 28px);
+  font-weight: bold;
+  letter-spacing: 0.3px;
+  color: var(--fg);
+  text-align: center;
+  line-height: 1.05;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  white-space: nowrap;
+}
+
+.desktop-icon--selected .desktop-icon__label {
+  text-decoration: underline;
+}
+
+.desktop-icon--selected .desktop-icon__graphic {
+  filter: invert(1);
+}

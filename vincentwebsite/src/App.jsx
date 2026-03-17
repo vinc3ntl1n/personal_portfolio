@@ -1,94 +1,235 @@
-import { useState, useRef } from 'react'
-import './App.css'
-import {BrowserRouter as Router, Routes, Route, Link, useNavigate, Outlet} from "react-router-dom";
-import "xp.css/dist/XP.css";
-import Draggable from "react-draggable";
-import image1 from "./assets/monkey.jpeg";
-import image2 from "./assets/Vincent.PNG";
-import winicon from "./assets/windows.png"
-import logo from "./assets/logo.png"
+import { useState, useCallback } from 'react';
+import './index.css';
+import MenuBar from './components/MenuBar';
+import Desktop from './components/Desktop';
+import Window from './components/Window';
+import useWindowManager from './hooks/useWindowManager';
+import AboutWindow from './windows/AboutWindow';
+import ProjectsWindow from './windows/ProjectsWindow';
+import ContactWindow from './windows/ContactWindow';
+import ResumeWindow from './windows/ResumeWindow';
 
-function Pair(obj) {
-  const [isVisible, toggleVisibility] = useToggle();
-  const [count, setCount] = useState(0);
-  const  shortRef = useRef(null);
-  const winRef = useRef(null);
-  const images = {
-    monkey: image1,
-    vincent: image2
+const DEFAULT_WINDOW_LAYOUT = {
+  openWindows: ['about', 'contact', 'resume'],
+  positions: {
+    contact: { x: 290, y: 99 },
+    resume: { x: 722, y: 175 },
+    about: { x: 48, y: 472 },
+  },
+  zOrder: ['about', 'contact', 'resume'],
+};
+
+const WINDOW_CONFIG = {
+  about: {
+    title: 'About Me',
+    variant: 'clean',  
+    width: 662,
+    height: 387,
+    component: AboutWindow,
+  },
+  projects: {
+    title: 'Projects',
+    variant: 'clean',   
+    width: 432,
+    height: 384,
+    component: ProjectsWindow,
+  },
+  contact: {
+    title: 'Contact',
+    variant: 'wobbly',   
+    width: 416,
+    height: 359,
+    component: ContactWindow,
+  },
+  resume: {
+    title: 'Resume',
+    variant: 'clean', 
+    width: 725,
+    height: 621,
+    component: ResumeWindow,
+  },
+};
+
+export default function App() {
+  const wm = useWindowManager(DEFAULT_WINDOW_LAYOUT);
+
+  const [drawMode, setDrawMode] = useState(false);
+
+  const [glitching, setGlitching] = useState(false);
+
+  const handleMenuAction = useCallback((action) => {
+    switch (action) {
+      case 'download-resume':
+        {
+          const link = document.createElement('a');
+          link.href = '/resume.pdf';
+          link.download = 'resume.pdf';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+        break;
+
+
+      case 'open-about':
+        wm.openWindow('about');
+        break;
+      case 'open-projects':
+        wm.openWindow('projects');
+        break;
+      case 'open-contact':
+        wm.openWindow('contact');
+        break;
+      case 'open-resume':
+        wm.openWindow('resume');
+        break;
+
+      case 'open-help-about':
+        alert('Decker Desktop Portfolio\nBuilt with React + SVG\nInspired by Decker & classic Macintosh');
+        break;
+
+      case 'draw-mode':
+        setDrawMode(prev => !prev);
+        break;
+
+      case 'oops':
+        setGlitching(true);
+        setTimeout(() => setGlitching(false), 2000);
+        break;
+
+      default:
+        break;
+    }
+  }, [wm]);
+
+  return (
+    <div className={`app-root${glitching ? ' app-glitch' : ''}`}>
+      <div className="app-scale">
+        <MenuBar onAction={handleMenuAction} />
+
+        <Desktop onOpenWindow={(id) => wm.openWindow(id)} />
+
+        {Array.from(wm.openWindows).map(id => {
+        const config = WINDOW_CONFIG[id];
+        if (!config) return null;
+
+        const ContentComponent = config.component;
+        const pos = wm.positions[id] || { x: 180, y: 60 };
+
+        return (
+          <Window
+            key={id}
+            id={id}
+            title={config.title}
+            variant={config.variant}
+            width={config.width}
+            height={config.height}
+            x={pos.x}
+            y={pos.y}
+            zIndex={wm.getZIndex(id)}
+            onClose={() => wm.closeWindow(id)}
+            onFocus={() => wm.bringToFront(id)}
+            onPositionChange={(x, y) => wm.updatePosition(id, x, y)}
+          >
+            <ContentComponent />
+          </Window>
+        );
+        })}
+
+        {drawMode && <DrawCanvas onClose={() => setDrawMode(false)} />}
+      </div>
+    </div>
+  );
+}
+
+
+
+function DrawCanvas({ onClose }) {
+  const [drawing, setDrawing] = useState(false);
+
+  const [paths, setPaths] = useState([]);
+
+  const [currentPath, setCurrentPath] = useState([]);
+
+  const handleMouseDown = (e) => {
+    setDrawing(true);
+    setCurrentPath([{ x: e.clientX, y: e.clientY }]);
   };
 
-    // the shortcut
-    return (
-    <div>
-      <Draggable nodeRef={shortRef} >
-        <div ref = {shortRef} style={{ width: 80}} >
-          <img src={images[obj.name]} alt={obj.name} draggable={false} onDoubleClick={toggleVisibility} className = "icon"/>
-        </div>
-      </Draggable>
-      
-      {isVisible && 
-      <Draggable nodeRef={winRef}>
-        <div ref = {winRef} style={{ width: 300}} className="window">
-          <div className="title-bar">
-            <div className="title-bar-text">Counter</div>
-            <div className="title-bar-controls">
-              <button aria-label="Minimize" />
-              <button aria-label="Maximize" />
-              <button aria-label="Close" onClick={toggleVisibility}/>
-            </div>
-          </div>
+  const handleMouseMove = (e) => {
+    if (!drawing) return;
+    setCurrentPath(prev => [...prev, { x: e.clientX, y: e.clientY }]);
+  };
 
-          <div className="window-body">
-            <p style={{ textAlign: "center" }}>banana count: {count}</p>
-            <div className="field-row" style={{ justifyContent: "center" }}>
-              <button onClick={() => setCount(count + 1)}>+</button>
-              <button onClick={() => setCount(count - 1)}>-</button>
-            </div>
-          </div>
-        </div>
-      </Draggable> 
-      }
-    </div>
-    )
-  
-}
+  const handleMouseUp = () => {
+    setDrawing(false);
+    if (currentPath.length > 1) {
+      setPaths(prev => [...prev, currentPath]);
+    }
+    setCurrentPath([]);
+  };
 
-function useToggle(initialValue = false) { //the image but trying to be able to toggle the image
-  const [isVisible, setIsVisible] = useState(initialValue)
+  const pathToD = (points) => {
+    if (points.length < 2) return '';
+    return 'M ' + points.map(p => `${p.x} ${p.y}`).join(' L ');
+  };
 
-  function toggle() {
-    setIsVisible(prevState => !prevState)
-  }
-
-  return [isVisible, toggle]
-}
-
-function Bottom() {
   return (
-    <div className="title-bar bottom-bar">
-      <div className="image-container">
-        <img src = {winicon} className = "greentab"/>
-        <div className="text">
-            start
-        </div>
-        <img src = {logo} className = "logo"/>
-      </div>
-    </div>
-  )
-}
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 99998,
+        cursor: 'crosshair',
+      }}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+    >
+      <svg width="100%" height="100%" style={{ position: 'absolute', inset: 0 }}>
+        {paths.map((p, i) => (
+          <path
+            key={i}
+            d={pathToD(p)}
+            fill="none"
+            stroke="var(--accent)"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            opacity="0.8"
+          />
+        ))}
+        {currentPath.length > 1 && (
+          <path
+            d={pathToD(currentPath)}
+            fill="none"
+            stroke="var(--accent)"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            opacity="0.8"
+          />
+        )}
+      </svg>
 
-function App() {
-  return (
-    <div>
-      <div>
-        <Pair name = "monkey"/>
-        <Pair name = "vincent"/>
-      </div>
-      <Bottom />
+      <button
+        onClick={(e) => { e.stopPropagation(); onClose(); }}
+        style={{
+          position: 'fixed',
+          top: 'calc(var(--menu-bar-height) + 2px)',
+          right: '14px',
+          padding: '6px 14px',
+          background: 'var(--accent)',
+          color: 'white',
+          border: '2px solid var(--fg)',
+          fontFamily: 'var(--font-display)',
+          fontSize: '22px',
+          zIndex: 99999,
+          boxShadow: '2px 2px 0px var(--fg)',
+        }}
+      >
+        ✕ Exit Draw Mode
+      </button>
     </div>
-    
-  )
+  );
 }
-
-export default App

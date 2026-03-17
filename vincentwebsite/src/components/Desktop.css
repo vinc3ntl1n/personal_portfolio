@@ -1,0 +1,25 @@
+
+.desktop {
+  position: absolute;
+  top: var(--menu-bar-height);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  background: var(--bg);
+  border-left: 3px solid var(--fg);
+  border-right: 3px solid var(--fg);
+  box-shadow: inset 0 0 0 3px var(--fg);
+}
+
+.desktop__icon-wrapper {
+  position: absolute;
+  cursor: grab;
+  user-select: none;
+  width: var(--desktop-grid-width, 118px);
+  height: var(--desktop-grid-height, 140px);
+}
+
+.desktop__icon-wrapper:active {
+  cursor: grabbing;
+}

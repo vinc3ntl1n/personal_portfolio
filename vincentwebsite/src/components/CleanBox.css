@@ -1,0 +1,27 @@
+.clean-box {
+  background: var(--bg);
+  border: 2px solid var(--fg);
+  position: relative;
+}
+
+.clean-box--default {
+  box-shadow: 4px 4px 0px var(--fg);
+}
+
+.clean-box--inset {
+  box-shadow: inset 2px 2px 0px rgba(0, 0, 0, 0.15);
+  border-color: var(--fg);
+}
+
+.clean-box--raised {
+  box-shadow:
+    1px 1px 0px var(--fg),
+    2px 2px 0px var(--fg),
+    3px 3px 0px var(--fg);
+  transition: box-shadow 0.1s ease, transform 0.1s ease;
+}
+
+.clean-box--raised:active {
+  box-shadow: none;
+  transform: translate(3px, 3px);
+}
